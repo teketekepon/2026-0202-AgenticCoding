@@ -1,0 +1,168 @@
+.App {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Arial', sans-serif;
+  background-color: #f0f8ff;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+h1 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+p {
+  color: #555;
+  font-size: 1.1em;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+li {
+  background-color: #e0f2f7;
+  margin: 5px 0;
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: #222;
+}
+
+.hanoi-board {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 100%;
+  max-width: 800px;
+  height: 300px;
+  border-bottom: 10px solid #8b4513;
+  margin-top: 30px;
+  position: relative;
+}
+
+.pole {
+  flex: 1;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  height: 100%;
+  position: relative;
+  cursor: pointer;
+}
+
+.pole-line {
+  width: 10px;
+  height: 250px;
+  background-color: #8b4513;
+  position: absolute;
+  bottom: 0;
+}
+
+.disk {
+  height: 30px;
+  background-color: #4682b4;
+  margin-bottom: 5px;
+  border: 1px solid #333;
+  border-radius: 5px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 10;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.disk-1 { background-color: #ff6347; }
+.disk-2 { background-color: #ffd700; }
+.disk-3 { background-color: #3cb371; }
+.disk-4 { background-color: #6a5acd; }
+.disk-5 { background-color: #ff8c00; }
+
+.disk.selected {
+  background-color: #a0a0a0;
+  transform: translateY(-10px); /* 選択されたディスクを少し持ち上げる */
+}
+
+.win-message {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #d4edda;
+  border: 1px solid #28a745;
+  color: #155724;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.win-message p {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.difficulty-selection {
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.difficulty-selection h2 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.difficulty-selection button {
+  padding: 12px 25px;
+  font-size: 1.2em;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.difficulty-selection button:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+}
+
+.difficulty-selection button:active {
+  transform: translateY(0);
+}
+
+.game-controls {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.game-controls button {
+  padding: 10px 15px;
+  font-size: 1em;
+  border-radius: 5px;
+}
+
+.game-controls button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
