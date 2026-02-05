@@ -12,6 +12,12 @@ function App() {
   const [autoMode, setAutoMode] = useState(false); // 自動モードの状態
   const [autoMoves, setAutoMoves] = useState<[number, number][]>([]); // 自動モードでの移動の配列
   const [autoMoveIndex, setAutoMoveIndex] = useState(0); // 自動移動の現在のインデックス
+  const [startTime, setStartTime] = useState<number | null>(null); // ゲーム開始時刻
+  const [elapsedTime, setElapsedTime] = useState(0); // 経過時間（秒）
+
+  const isGameWon = () => {
+    return poles[2].length === numDisks;
+  };
 
   const initializeGame = useCallback((disks: number) => {
     const initialPoles: number[][] = [[], [], []];
@@ -25,6 +31,8 @@ function App() {
     setAutoMode(false); // ゲームリセット時にAutoモードを無効化
     setAutoMoves([]);
     setAutoMoveIndex(0);
+    setStartTime(Date.now()); // ゲーム開始時刻を記録
+    setElapsedTime(0);
   }, []);
 
   useEffect(() => {
@@ -35,6 +43,17 @@ function App() {
       return () => clearTimeout(timer);
     }
   }, [gameStarted, numDisks, initializeGame]);
+
+  // 経過時間を毎秒更新するEffect
+  useEffect(() => {
+    const gameWon = poles[2].length === numDisks;
+    if (gameStarted && startTime && !gameWon && !autoMode) {
+      const interval = setInterval(() => {
+        setElapsedTime(Math.floor((Date.now() - startTime) / 1000));
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [gameStarted, startTime, autoMode, poles, numDisks]);
 
   useEffect(() => {
     if (autoMode && autoMoveIndex < autoMoves.length) {
@@ -104,10 +123,6 @@ function App() {
     }
   };
 
-  const isGameWon = () => {
-    return poles[2].length === numDisks;
-  };
-
   const handleDifficultySelect = (difficulty: number) => {
     setNumDisks(difficulty);
     setGameStarted(true);
@@ -133,6 +148,32 @@ function App() {
     setAutoMode(true);
   };
 
+  // スコアをDBに保存する関数
+  const saveScore = async (moveCount: number, clearTime: number) => {
+    try {
+      const response = await fetch('/api/scores', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          numDisks,
+          moves: moveCount,
+          clearTime, // クリアタイム（秒）
+          timestamp: new Date().toISOString(),
+        }),
+      });
+
+      if (response.ok) {
+        console.log('スコアを保存しました');
+      } else {
+        console.error('スコア保存に失敗しました');
+      }
+    } catch (error) {
+      console.error('スコア保存エラー:', error);
+    }
+  };
+
   return (
     <div className="App">
       <h1>ハノイの塔にちょうせん！</h1>
@@ -153,6 +194,7 @@ function App() {
             <li>お皿は動かすか、置くか、しかできないよ。</li>
           </ul>
           <p>動かした回数: {moves}</p>
+          <p>経過時間: {elapsedTime} 秒</p>
           <div className="hanoi-board">
             {poles.map((pole, poleIndex) => (
               <div
@@ -174,7 +216,12 @@ function App() {
           {isGameWon() && (
             <div className="win-message">
               <p>おめでとう！クリアしたよ！</p>
-              <button onClick={() => initializeGame(numDisks)}>もう一度遊ぶ</button>
+              <p>動かした回数: {moves} 回</p>
+              <p>クリアタイム: {elapsedTime} 秒</p>
+              <button onClick={() => {
+                saveScore(moves, elapsedTime);
+                initializeGame(numDisks);
+              }}>スコア保存してもう一度遊ぶ</button>
             </div>
           )}
           <div className="game-controls">
