@@ -2,6 +2,14 @@ import './App.css';
 
 import { useCallback, useEffect, useState } from 'react';
 
+interface Score {
+  playerName: string;
+  numDisks: number;
+  moves: number;
+  clearTime: number;
+  timestamp: string;
+}
+
 function App() {
   const [poles, setPoles] = useState<number[][]>([[], [], []]);
   const [moves, setMoves] = useState(0);
@@ -14,6 +22,9 @@ function App() {
   const [autoMoveIndex, setAutoMoveIndex] = useState(0); // 自動移動の現在のインデックス
   const [startTime, setStartTime] = useState<number | null>(null); // ゲーム開始時刻
   const [elapsedTime, setElapsedTime] = useState(0); // 経過時間（秒）
+  const [playerName, setPlayerName] = useState(''); // プレイヤー名
+  const [scores, setScores] = useState<Score[]>([]); // スコアリスト
+  const [showScores, setShowScores] = useState(false); // スコア表示フラグ
 
   const isGameWon = () => {
     return poles[2].length === numDisks;
@@ -157,6 +168,7 @@ function App() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          playerName: playerName || 'Anonymous',
           numDisks,
           moves: moveCount,
           clearTime, // クリアタイム（秒）
@@ -166,11 +178,31 @@ function App() {
 
       if (response.ok) {
         console.log('スコアを保存しました');
+        alert('スコアを保存しました！');
+        setPlayerName(''); // リセット
       } else {
         console.error('スコア保存に失敗しました');
+        alert('スコア保存に失敗しました');
       }
     } catch (error) {
       console.error('スコア保存エラー:', error);
+      alert('スコア保存エラーが発生しました');
+    }
+  };
+
+  // スコアを取得する関数
+  const fetchScores = async () => {
+    try {
+      const response = await fetch('/api/scores');
+      if (response.ok) {
+        const data = await response.json();
+        setScores(data);
+        setShowScores(true);
+      } else {
+        console.error('スコア取得に失敗しました');
+      }
+    } catch (error) {
+      console.error('スコア取得エラー:', error);
     }
   };
 
@@ -183,6 +215,40 @@ function App() {
           <button onClick={() => handleDifficultySelect(3)}>簡単 (3個)</button>
           <button onClick={() => handleDifficultySelect(4)}>普通 (4個)</button>
           <button onClick={() => handleDifficultySelect(5)}>難しい (5個)</button>
+          <button onClick={fetchScores} className="scores-button">スコアを見る</button>
+
+          {showScores && (
+            <div className="scores-section">
+              <h2>スコア一覧</h2>
+              <button onClick={() => setShowScores(false)}>閉じる</button>
+              {scores.length > 0 ? (
+                <table className="scores-table">
+                  <thead>
+                    <tr>
+                      <th>プレイヤー名</th>
+                      <th>難易度</th>
+                      <th>手数</th>
+                      <th>クリアタイム</th>
+                      <th>日時</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {scores.map((score, index) => (
+                      <tr key={index}>
+                        <td>{score.playerName}</td>
+                        <td>{score.numDisks} 個</td>
+                        <td>{score.moves}</td>
+                        <td>{score.clearTime.toFixed(2)} 秒</td>
+                        <td>{new Date(score.timestamp).toLocaleString('ja-JP')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p>スコアはまだ保存されていません</p>
+              )}
+            </div>
+          )}
         </div>
       ) : (
         <>
@@ -218,10 +284,20 @@ function App() {
               <p>おめでとう！クリアしたよ！</p>
               <p>動かした回数: {moves} 回</p>
               <p>クリアタイム: {elapsedTime} 秒</p>
+              <div className="score-input">
+                <input
+                  type="text"
+                  placeholder="プレイヤー名を入力してください"
+                  value={playerName}
+                  onChange={(e) => setPlayerName(e.target.value)}
+                  maxLength={20}
+                />
+              </div>
               <button onClick={() => {
                 saveScore(moves, elapsedTime);
                 initializeGame(numDisks);
               }}>スコア保存してもう一度遊ぶ</button>
+              <button onClick={() => initializeGame(numDisks)}>スコアなしでもう一度遊ぶ</button>
             </div>
           )}
           <div className="game-controls">
