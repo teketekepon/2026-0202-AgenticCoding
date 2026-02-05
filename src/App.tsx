@@ -1,52 +1,19 @@
 import './App.css';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 function App() {
   const [poles, setPoles] = useState<number[][]>([[], [], []]);
   const [moves, setMoves] = useState(0);
   const [selectedDisk, setSelectedDisk] = useState<number | null>(null);
   const [selectedPole, setSelectedPole] = useState<number | null>(null);
-  const [numDisks, setNumDisks] = useState(3); // ディスクの数
+  const [numDisks, setNumDisks] = useState(3);
   const [gameStarted, setGameStarted] = useState(false);
-  const [autoMode, setAutoMode] = useState(false); // 自動モードの状態
-  const [autoMoves, setAutoMoves] = useState<[number, number][]>([]); // 自動モードでの移動の配列
-  const [autoMoveIndex, setAutoMoveIndex] = useState(0); // 自動移動の現在のインデックス
+  const [autoMode, setAutoMode] = useState(false);
+  const [autoMoves, setAutoMoves] = useState<[number, number][]>([]);
+  const [autoMoveIndex, setAutoMoveIndex] = useState(0);
 
-  useEffect(() => {
-    if (gameStarted) {
-      initializeGame(numDisks);
-    }
-  }, [gameStarted, numDisks]);
-
-  // 自動モードのディスク移動ロジック
-  useEffect(() => {
-    if (autoMode && autoMoveIndex < autoMoves.length) {
-      const [from, to] = autoMoves[autoMoveIndex];
-
-      setPoles(prevPoles => {
-        const newPoles = JSON.parse(JSON.stringify(prevPoles));
-        const diskToMove = newPoles[from][newPoles[from].length - 1];
-
-        if (diskToMove) {
-          newPoles[from].pop();
-          newPoles[to].push(diskToMove);
-          setMoves(prevMoves => prevMoves + 1);
-        }
-        return newPoles;
-      });
-
-      const timer = setTimeout(() => {
-        setAutoMoveIndex(prevIndex => prevIndex + 1);
-      }, 800);
-
-      return () => clearTimeout(timer);
-    } else if (autoMode && autoMoveIndex === autoMoves.length) {
-      setAutoMode(false);
-    }
-  }, [autoMode, autoMoves, autoMoveIndex]);
-
-  const initializeGame = (disks: number) => {
+  const initializeGame = useCallback((disks: number) => {
     const initialPoles: number[][] = [[], [], []];
     for (let i = disks; i > 0; i--) {
       initialPoles[0].push(i);
@@ -55,10 +22,48 @@ function App() {
     setMoves(0);
     setSelectedDisk(null);
     setSelectedPole(null);
-    setAutoMode(false); // ゲームリセット時にAutoモードを無効化
+    setAutoMode(false);
     setAutoMoves([]);
     setAutoMoveIndex(0);
-  };
+  }, []);
+
+  useEffect(() => {
+    if (gameStarted) {
+      const timer = setTimeout(() => {
+        initializeGame(numDisks);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [gameStarted, numDisks, initializeGame]);
+
+  useEffect(() => {
+    if (autoMode && autoMoveIndex < autoMoves.length) {
+      const [from, to] = autoMoves[autoMoveIndex];
+
+      const timer = setTimeout(() => {
+        setPoles(prevPoles => {
+          const newPoles = JSON.parse(JSON.stringify(prevPoles));
+          const diskToMove = newPoles[from][newPoles[from].length - 1];
+
+          if (diskToMove) {
+            newPoles[from].pop();
+            newPoles[to].push(diskToMove);
+          }
+          return newPoles;
+        });
+
+        setMoves(prevMoves => prevMoves + 1);
+        setAutoMoveIndex(prevIndex => prevIndex + 1);
+      }, 800);
+
+      return () => clearTimeout(timer);
+    } else if (autoMode && autoMoveIndex === autoMoves.length) {
+      const timer = setTimeout(() => {
+        setAutoMode(false);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [autoMode, autoMoves, autoMoveIndex]);
 
   const moveDisk = useCallback((fromPole: number, toPole: number, isAuto: boolean = false) => {
     if (fromPole === toPole) return;
@@ -82,16 +87,14 @@ function App() {
   }, []);
 
   const handlePoleClick = (poleIndex: number) => {
-    if (!gameStarted || autoMode) return; // ゲームが開始されていない場合、またはAutoモード中は手動操作を無効
+    if (!gameStarted || autoMode) return;
 
     if (selectedPole === null) {
-      // ディスクを選択
       if (poles[poleIndex].length > 0) {
         setSelectedDisk(poles[poleIndex][poles[poleIndex].length - 1]);
         setSelectedPole(poleIndex);
       }
     } else {
-      // ディスクを移動
       moveDisk(selectedPole, poleIndex);
       setSelectedDisk(null);
       setSelectedPole(null);
@@ -107,7 +110,6 @@ function App() {
     setGameStarted(true);
   };
 
-  // ハノイの塔を自動で解く再帰関数
   const solveHanoi = (disks: number, from: number, to: number, aux: number, movesList: [number, number][]) => {
     if (disks === 1) {
       movesList.push([from, to]);
@@ -119,7 +121,7 @@ function App() {
   };
 
   const startAutoMode = () => {
-    initializeGame(numDisks); // ゲームを初期状態に戻す
+    initializeGame(numDisks);
     const movesList: [number, number][] = [];
     solveHanoi(numDisks, 0, 2, 1, movesList);
     setAutoMoves(movesList);
