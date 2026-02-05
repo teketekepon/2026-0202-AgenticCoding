@@ -48,6 +48,13 @@ dist-ssr
 # Bower dependency directory (https://bower.io/)
 bower_components
 
+# Backend - SQLite database
+backend/*.db
+backend/__pycache__/
+backend/.venv/
+backend/venv/
+*.pyc
+
 # node-waf configuration
 .lock-wscript
 
