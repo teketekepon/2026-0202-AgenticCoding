@@ -7,11 +7,11 @@ function App() {
   const [moves, setMoves] = useState(0);
   const [selectedDisk, setSelectedDisk] = useState<number | null>(null);
   const [selectedPole, setSelectedPole] = useState<number | null>(null);
-  const [numDisks, setNumDisks] = useState(3);
+  const [numDisks, setNumDisks] = useState(3); // ディスクの数
   const [gameStarted, setGameStarted] = useState(false);
-  const [autoMode, setAutoMode] = useState(false);
-  const [autoMoves, setAutoMoves] = useState<[number, number][]>([]);
-  const [autoMoveIndex, setAutoMoveIndex] = useState(0);
+  const [autoMode, setAutoMode] = useState(false); // 自動モードの状態
+  const [autoMoves, setAutoMoves] = useState<[number, number][]>([]); // 自動モードでの移動の配列
+  const [autoMoveIndex, setAutoMoveIndex] = useState(0); // 自動移動の現在のインデックス
 
   const initializeGame = useCallback((disks: number) => {
     const initialPoles: number[][] = [[], [], []];
@@ -22,7 +22,7 @@ function App() {
     setMoves(0);
     setSelectedDisk(null);
     setSelectedPole(null);
-    setAutoMode(false);
+    setAutoMode(false); // ゲームリセット時にAutoモードを無効化
     setAutoMoves([]);
     setAutoMoveIndex(0);
   }, []);
@@ -40,6 +40,7 @@ function App() {
     if (autoMode && autoMoveIndex < autoMoves.length) {
       const [from, to] = autoMoves[autoMoveIndex];
 
+      // 自動モードのディスク移動ロジック
       const timer = setTimeout(() => {
         setPoles(prevPoles => {
           const newPoles = JSON.parse(JSON.stringify(prevPoles));
@@ -87,14 +88,16 @@ function App() {
   }, []);
 
   const handlePoleClick = (poleIndex: number) => {
-    if (!gameStarted || autoMode) return;
+    if (!gameStarted || autoMode) return; // ゲームが開始されていないか、またはAutoモード中は処理を無効
 
     if (selectedPole === null) {
+      // ディスクを選択
       if (poles[poleIndex].length > 0) {
         setSelectedDisk(poles[poleIndex][poles[poleIndex].length - 1]);
         setSelectedPole(poleIndex);
       }
     } else {
+      // ディスクを移動
       moveDisk(selectedPole, poleIndex);
       setSelectedDisk(null);
       setSelectedPole(null);
@@ -110,6 +113,7 @@ function App() {
     setGameStarted(true);
   };
 
+  // ハノイの塔を自動で解く漸化関数
   const solveHanoi = (disks: number, from: number, to: number, aux: number, movesList: [number, number][]) => {
     if (disks === 1) {
       movesList.push([from, to]);
@@ -121,7 +125,7 @@ function App() {
   };
 
   const startAutoMode = () => {
-    initializeGame(numDisks);
+    initializeGame(numDisks); // ゲームを初期状態に戻す
     const movesList: [number, number][] = [];
     solveHanoi(numDisks, 0, 2, 1, movesList);
     setAutoMoves(movesList);
