@@ -1,0 +1,279 @@
+.App {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Arial', sans-serif;
+  background-color: #f0f8ff;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+h1 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+p {
+  color: #555;
+  font-size: 1.1em;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+li {
+  background-color: #e0f2f7;
+  margin: 5px 0;
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: #222;
+}
+
+.hanoi-board {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 100%;
+  max-width: 800px;
+  height: 300px;
+  border-bottom: 10px solid #8b4513;
+  margin-top: 30px;
+  position: relative;
+}
+
+.pole {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pole:hover {
+  background-color: rgba(200, 230, 255, 0.3);
+}
+
+.pole.selected-pole {
+  background-color: rgba(100, 150, 255, 0.3);
+  border: 2px solid #1976d2;
+  border-radius: 5px;
+}
+
+.pole-line {
+  width: 8px;
+  height: 200px;
+  background-color: #8b4513;
+  position: absolute;
+  bottom: 0;
+}
+
+.disk {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  height: 20px;
+  border: 2px solid #5a67d8;
+  border-radius: 5px;
+  cursor: grab;
+  transition: transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.disk:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.disk.selected {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  border: 2px solid #ff006e;
+  box-shadow: 0 0 15px rgba(255, 0, 110, 0.6);
+}
+
+.disk-1 {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.disk-2 {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.disk-3 {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.disk-4 {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.disk-5 {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.difficulty-selection {
+  text-align: center;
+  margin: 30px 0;
+}
+
+.difficulty-selection h2 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.difficulty-selection button {
+  margin: 10px;
+  padding: 12px 30px;
+  font-size: 16px;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.difficulty-selection button:hover {
+  background-color: #1565c0;
+}
+
+.difficulty-selection button:active {
+  background-color: #0d47a1;
+}
+
+.scores-button {
+  background-color: #388e3c !important;
+  margin-top: 20px;
+}
+
+.scores-button:hover {
+  background-color: #2e7d32 !important;
+}
+
+.win-message {
+  background-color: #fff9c4;
+  border: 3px solid #fbc02d;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 30px;
+  text-align: center;
+  max-width: 400px;
+}
+
+.win-message p {
+  color: #333;
+  font-size: 1.2em;
+  margin: 10px 0;
+}
+
+.score-input {
+  margin: 15px 0;
+}
+
+.score-input input {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 2px solid #fbc02d;
+  border-radius: 5px;
+  width: 200px;
+}
+
+.win-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.win-buttons button {
+  padding: 10px 20px;
+  font-size: 14px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.win-buttons button:hover {
+  background-color: #45a049;
+}
+
+.win-buttons button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.game-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+.game-controls button {
+  padding: 10px 20px;
+  font-size: 14px;
+  background-color: #ff9800;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.game-controls button:hover {
+  background-color: #e68900;
+}
+
+.game-controls button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .App {
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 1.5em;
+  }
+
+  p {
+    font-size: 0.9em;
+  }
+
+  .hanoi-board {
+    max-width: 90%;
+    height: 250px;
+  }
+
+  .difficulty-selection button,
+  .game-controls button {
+    padding: 10px 15px;
+    font-size: 14px;
+    margin: 5px;
+  }
+
+  .win-message {
+    max-width: 90%;
+  }
+
+  .score-input input {
+    width: 150px;
+  }
+}
