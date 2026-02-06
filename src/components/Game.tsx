@@ -58,10 +58,16 @@ export function Game() {
   }, [gameStarted, numDisks, initializeGame]);
 
   useEffect(() => {
-    const gameWon = poles[2].length === numDisks;
-    if (gameStarted && startTime && !gameWon && !autoMode) {
+    if (gameStarted && startTime && !autoMode) {
       const interval = setInterval(() => {
-        setElapsedTime(Math.floor((Date.now() - startTime) / 1000));
+        setElapsedTime(prevTime => {
+          // クリア状態でタイマーを停止
+          if (poles[2].length === numDisks) {
+            clearInterval(interval);
+            return prevTime;
+          }
+          return Math.floor((Date.now() - startTime) / 1000);
+        });
       }, 1000);
       return () => clearInterval(interval);
     }
