@@ -244,6 +244,13 @@ li {
   cursor: not-allowed;
 }
 
+.timer {
+  font-family: 'Courier New', 'Monaco', monospace;
+  display: inline-block;
+  min-width: 40px;
+  text-align: right;
+}
+
 @media (max-width: 600px) {
   .App {
     padding: 10px;
