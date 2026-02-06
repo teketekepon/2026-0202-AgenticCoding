@@ -26,6 +26,9 @@ export function Game() {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [playerName, setPlayerName] = useState('');
   const [wasAutoMode, setWasAutoMode] = useState(false);
+  const DISK_HEIGHT = 24;
+  const DISK_GAP = 6;
+  const BASE_OFFSET = 8;
 
   const isGameWon = () => {
     return poles[2].length === numDisks;
@@ -90,11 +93,11 @@ export function Game() {
       const timer = setTimeout(() => {
         setPoles(prevPoles => {
           const newPoles = JSON.parse(JSON.stringify(prevPoles));
-          const diskToMove = newPoles[from][newPoles[from].length - 1];
+          const diskToMove = newPoles[from][0];
 
-          if (diskToMove) {
-            newPoles[from].pop();
-            newPoles[to].push(diskToMove);
+          if (diskToMove !== undefined) {
+            newPoles[from].shift();
+            newPoles[to].unshift(diskToMove);
           }
           return newPoles;
         });
@@ -212,6 +215,14 @@ export function Game() {
     }
   };
 
+  const diskPositions = new Map<number, { poleIndex: number; level: number }>();
+  poles.forEach((pole, poleIndex) => {
+    pole.forEach((diskSize, diskIndex) => {
+      const level = pole.length - 1 - diskIndex;
+      diskPositions.set(diskSize, { poleIndex, level });
+    });
+  });
+
   return (
     <div className="App">
       <h1>ハノイの塔にちょうせん！</h1>
@@ -235,22 +246,34 @@ export function Game() {
           <p>動かした回数: {moves}</p>
           <p>経過時間: <span className="timer">{elapsedTime.toFixed(2)}</span> 秒</p>
           <div className="hanoi-board">
-            {poles.map((pole, poleIndex) => (
+            {poles.map((_, poleIndex) => (
               <div
                 key={poleIndex}
                 className={`pole ${selectedPole === poleIndex ? 'selected-pole' : ''}`}
                 onClick={() => handlePoleClick(poleIndex)}
               >
                 <div className="pole-line"></div>
-                {pole.map((diskSize, diskIndex) => (
-                  <div
-                    key={diskIndex}
-                    className={`disk disk-${diskSize} ${selectedDisk === diskSize && selectedPole === poleIndex ? 'selected' : ''}`}
-                    style={{ width: `${diskSize * 20 + 40}px` }}
-                  ></div>
-                ))}
               </div>
             ))}
+            <div className="disks-layer">
+              {Array.from({ length: numDisks }, (_, index) => index + 1).map((diskSize) => {
+                const position = diskPositions.get(diskSize);
+                if (!position) return null;
+                const leftPercent = (position.poleIndex + 0.5) * (100 / 3);
+                const bottomPx = BASE_OFFSET + position.level * (DISK_HEIGHT + DISK_GAP);
+                return (
+                  <div
+                    key={diskSize}
+                    className={`disk disk-${diskSize} ${selectedDisk === diskSize && selectedPole === position.poleIndex ? 'selected' : ''}`}
+                    style={{
+                      width: `${diskSize * 20 + 40}px`,
+                      left: `${leftPercent}%`,
+                      bottom: `${bottomPx}px`,
+                    }}
+                  ></div>
+                );
+              })}
+            </div>
           </div>
           {isGameWon() && (
             <div className="win-message">
