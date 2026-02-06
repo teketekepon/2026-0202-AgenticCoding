@@ -58,11 +58,17 @@ export function Game() {
   }, [gameStarted, numDisks, initializeGame]);
 
   useEffect(() => {
-    const gameWon = poles[2].length === numDisks;
-    if (gameStarted && startTime && !gameWon && !autoMode) {
+    if (gameStarted && startTime && !autoMode) {
       const interval = setInterval(() => {
-        setElapsedTime(Math.floor((Date.now() - startTime) / 1000));
-      }, 1000);
+        setElapsedTime(prevTime => {
+          // クリア状態でタイマーを停止
+          if (poles[2].length === numDisks) {
+            clearInterval(interval);
+            return prevTime;
+          }
+          return Math.round((Date.now() - startTime) / 10) / 100;
+        });
+      }, 10);  // 10ms（0.01秒）ごとに更新
       return () => clearInterval(interval);
     }
   }, [gameStarted, startTime, autoMode, poles, numDisks]);
@@ -227,7 +233,7 @@ export function Game() {
             <li>お皿は動かすか、置くか、しかできないよ。</li>
           </ul>
           <p>動かした回数: {moves}</p>
-          <p>経過時間: {elapsedTime} 秒</p>
+          <p>経過時間: <span className="timer">{elapsedTime.toFixed(2)}</span> 秒</p>
           <div className="hanoi-board">
             {poles.map((pole, poleIndex) => (
               <div
