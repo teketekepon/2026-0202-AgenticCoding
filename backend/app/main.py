@@ -1,11 +1,14 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from datetime import timezone
 from app.database import get_db
 from app.schemas import ScoreCreate, Score
 from app.crud import create_score, get_scores
+from zoneinfo import ZoneInfo
 
 app = FastAPI(title="Tower of Hanoi API")
+JST = ZoneInfo("Asia/Tokyo")
 
 # CORS設定
 app.add_middleware(
@@ -45,6 +48,13 @@ def fetch_scores(db: Session = Depends(get_db)) -> list[Score]:
     """全スコアを取得"""
     try:
         scores = get_scores(db)
+
+        def to_jst_iso(dt):
+            # SQLite から取り出した datetime が naive の場合は UTC として扱う
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt.astimezone(JST).isoformat()
+
         return [
             {
                 "id": score.id,
@@ -52,7 +62,7 @@ def fetch_scores(db: Session = Depends(get_db)) -> list[Score]:
                 "numDisks": score.numDisks,
                 "moves": score.moves,
                 "clearTime": score.clearTime,
-                "timestamp": score.timestamp.isoformat()
+                "timestamp": to_jst_iso(score.timestamp)
             }
             for score in scores
         ]
