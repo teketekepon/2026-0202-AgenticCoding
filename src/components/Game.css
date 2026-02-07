@@ -43,6 +43,7 @@ li {
   border-bottom: 10px solid #8b4513;
   margin-top: 30px;
   position: relative;
+  overflow: hidden;
 }
 
 .pole {
@@ -74,6 +75,7 @@ li {
   background-color: #8b4513;
   position: absolute;
   bottom: 0;
+  z-index: 1;
 }
 
 .disk {
@@ -82,7 +84,10 @@ li {
   border: 2px solid #5a67d8;
   border-radius: 5px;
   cursor: grab;
-  transition: transform 0.1s;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: left 0.35s ease, bottom 0.35s ease, transform 0.1s;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -92,14 +97,21 @@ li {
 }
 
 .disk:hover {
-  transform: scale(1.05);
+  transform: translateX(-50%) scale(1.05);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
 .disk.selected {
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   border: 2px solid #ff006e;
-  box-shadow: 0 0 15px rgba(255, 0, 110, 0.6);
+  transform: translateX(-50%) translateY(-14px);
+}
+
+.disks-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
 }
 
 .disk-1 {
